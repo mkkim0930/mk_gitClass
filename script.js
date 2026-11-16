@@ -5,6 +5,7 @@ const previousButton = document.querySelector(".slider-prev");
 const nextButton = document.querySelector(".slider-next");
 const currentSlideLabel = document.querySelector(".progress-current");
 const progressBar = document.querySelector(".progress-track i");
+const contactForm = document.querySelector("#contact-form");
 
 if (currentYear) {
   currentYear.textContent = new Date().getFullYear();
@@ -41,4 +42,57 @@ if ("IntersectionObserver" in window) {
   revealItems.forEach((item) => revealObserver.observe(item));
 } else {
   revealItems.forEach((item) => item.classList.add("is-visible"));
+}
+
+if (contactForm instanceof HTMLFormElement) {
+  const contactFields = contactForm.querySelectorAll("input[required], textarea[required]");
+  const formStatus = contactForm.querySelector("#contact-form-status");
+  const requiredMessages = {
+    name: "이름을 입력해 주세요.",
+    email: "이메일 주소를 입력해 주세요.",
+    message: "메시지를 입력해 주세요."
+  };
+
+  function setFieldError(field, message) {
+    const errorElement = contactForm.querySelector(`#${field.id}-error`);
+    if (!errorElement) return;
+
+    errorElement.textContent = message;
+    errorElement.hidden = !message;
+    field.setAttribute("aria-invalid", String(Boolean(message)));
+  }
+
+  contactFields.forEach((field) => {
+    field.addEventListener("input", () => {
+      setFieldError(field, "");
+      if (formStatus) formStatus.textContent = "";
+    });
+  });
+
+  contactForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    let firstInvalidField = null;
+    contactFields.forEach((field) => {
+      let errorMessage = "";
+      if (!field.value.trim()) {
+        errorMessage = requiredMessages[field.name] || "필수 항목을 입력해 주세요.";
+      } else if (field.type === "email" && field.validity.typeMismatch) {
+        errorMessage = "올바른 이메일 주소를 입력해 주세요.";
+      }
+
+      setFieldError(field, errorMessage);
+      if (errorMessage && !firstInvalidField) firstInvalidField = field;
+    });
+
+    if (firstInvalidField) {
+      if (formStatus) formStatus.textContent = "입력 항목을 확인해 주세요.";
+      firstInvalidField.focus();
+      return;
+    }
+
+    if (formStatus) {
+      formStatus.textContent = "입력 내용이 확인되었습니다. 실제 이메일은 전송되지 않았습니다.";
+    }
+  });
 }
