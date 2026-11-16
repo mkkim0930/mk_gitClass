@@ -6,6 +6,29 @@ const nextButton = document.querySelector(".slider-next");
 const currentSlideLabel = document.querySelector(".progress-current");
 const progressBar = document.querySelector(".progress-track i");
 const contactForm = document.querySelector("#contact-form");
+const themeToggle = document.querySelector("#theme-toggle");
+const themeStorageKey = "portfolio-theme";
+
+function applyTheme(theme) {
+  const isDark = theme === "dark";
+  document.documentElement.dataset.theme = isDark ? "dark" : "light";
+
+  if (themeToggle instanceof HTMLButtonElement) {
+    themeToggle.setAttribute("aria-label", isDark ? "라이트 모드로 전환" : "다크 모드로 전환");
+    themeToggle.setAttribute("aria-pressed", String(isDark));
+    const icon = themeToggle.querySelector(".theme-toggle-icon");
+    if (icon) icon.textContent = isDark ? "☀" : "☾";
+  }
+}
+
+const savedTheme = localStorage.getItem(themeStorageKey);
+applyTheme(savedTheme === "dark" ? "dark" : "light");
+
+themeToggle?.addEventListener("click", () => {
+  const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(nextTheme);
+  localStorage.setItem(themeStorageKey, nextTheme);
+});
 
 if (currentYear) {
   currentYear.textContent = new Date().getFullYear();
